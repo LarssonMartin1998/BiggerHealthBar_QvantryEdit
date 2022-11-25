@@ -7,7 +7,7 @@ The instructions are taken from the orignal addons Curse Forge page.
 * Restart the game if it is open, a "/reload" is not sufficient.
 
 This will remove the border-separator in between the Health Bar frame and the Mana Bar frame.
-Without this you will still see the separator when taking damage.
+Without this you will still see the separator when taking damage. For image comparisons of this, see the original addons images in the Curse Forge page, it's linked in the top of this text.
 
 # What does this addon do?
 Just like the original Bigger Health Bar addon, this removes the mana bar from your Player Unit Frame, and enlarges your health bar to take up the free space left behind from the mana bar. However, this addon only does this if you're playing a Tank or a DPS. If you're playing a healer, the mana bar will still show.
