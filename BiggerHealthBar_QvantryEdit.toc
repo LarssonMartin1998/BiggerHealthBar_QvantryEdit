@@ -1,0 +1,11 @@
+##Interface: 100002
+##Version: 1
+##Title: BiggerHealthBar_QvantryEdit
+##Author: Slothpala / Qvantry
+##OptionalDeps: HealthBarColor
+
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\LibSharedMedia-3.0\LibSharedMedia-3.0.lua
+
+BiggerHealthBar_QvantryEdit.lua
