@@ -185,7 +185,7 @@ function TryUpdateHealthBarFromHealthBarColorAddon(PlayerFrameHealthBar)
 
 	local media = LibStub("LibSharedMedia-3.0")
 	BiggerHealthBar_QvantryEdit.playerFrameHealthBar:SetStatusBarTexture(media:Fetch("statusbar", healthBarColorTextures.statusbar))
-	BiggerHealthBar_QvantryEdit.playerFrameHealthBar:GetStatusBarTexture():SetMask("Interface\\AddOns\\BiggerHealthBar\\UIUnitFramePlayerHealthMask")
+	BiggerHealthBar_QvantryEdit.playerFrameHealthBar:GetStatusBarTexture():SetMask("Interface\\AddOns\\BiggerHealthBar_QvantryEdit\\UIUnitFramePlayerHealthMask")
 end
 
 function TryRemoveMaskTextureOnFrame(frame)
