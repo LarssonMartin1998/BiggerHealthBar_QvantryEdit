@@ -2,8 +2,6 @@ View this Addon on [Curse Forge](https://www.curseforge.com/wow/addons/bigger-he
 This is an edit of the [Bigger Health Bar](https://www.curseforge.com/wow/addons/biggerhealthbar) addon, credit to it's original creator Slothpala.
 
 # Instructions
-The instructions are taken from the orignal addons Curse Forge page.
-
 * Move the "HUD" folder found inside this directory to "Your World of Warcraft install location\_retail_\Interface"
 * Restart the game if it is open, a "/reload" is not sufficient.
 
