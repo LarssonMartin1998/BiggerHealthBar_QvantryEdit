@@ -1,3 +1,4 @@
+View this Addon on [Curse Forge](https://www.curseforge.com/wow/addons/bigger-health-bar-qvantry-edit).
 This is an edit of the [Bigger Health Bar](https://www.curseforge.com/wow/addons/biggerhealthbar) addon, credit to it's original creator Slothpala.
 
 # Instructions
