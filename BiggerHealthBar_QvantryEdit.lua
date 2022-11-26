@@ -39,8 +39,8 @@ function InitializeTables(PlayerFrameHealthBar)
 	end
 end
 
-function OnUnitChangedSpecialization(self, event, ...)
-	local unit = select(1, ...)
+function OnUnitChangedSpecialization(...)
+	local unit = select(3, ...)
 	if unit ~= "player" then
 		return
 	end
@@ -95,7 +95,7 @@ function ShowManaBarAndShrinkHealthBar()
 		TryAddMaskTextureOnFrame(frame, maskTexture)
 	end
 
-	GetHealthBarFrame():SetHeight(20)
+	GetHealthBarFrame():SetHeight(22)
 end
 
 function HideManaBarAndEnlargeHealthBar()
@@ -190,7 +190,7 @@ function TryRemoveMaskTextureOnFrame(frame)
 	frame:RemoveMaskTexture(maskTexture)
 end
 
-function TryAddMaskTextureOnFrame(frame, masnkTexture)
+function TryAddMaskTextureOnFrame(frame, maskTexture)
 	if frame == nil or maskTexture == nil then
 		return
 	end
