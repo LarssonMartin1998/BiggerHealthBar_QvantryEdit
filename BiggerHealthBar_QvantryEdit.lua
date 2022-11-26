@@ -6,6 +6,7 @@ function Initialize()
 	BiggerHealthBar_QvantryEdit.playerManaBarMask = GetManaBarMask()
 
 	InitializeTables()
+	CreateSeparator()
 	RegisterEvents()
 	TryUpdateHealthBarFromHealthBarColorAddon(PlayerFrameHealthBar)
 	-- No need to call Run() here as OnPlayerFrame_ToPlayerArt gets called from a WoWClient event on Reload / Login which in turn calls Run.
@@ -21,14 +22,6 @@ end
 
 function GetManaBarMask()
 	return PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar.ManaBarMask
-end
-
-function RegisterEvents()
-	local BiggerHealthBar_QvantryEdit = CreateFrame("Frame", "BiggerHealthBar_QvantryEdit")
-	BiggerHealthBar_QvantryEdit:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
-	BiggerHealthBar_QvantryEdit:SetScript("OnEvent", OnUnitChangedSpecialization)
-
-	hooksecurefunc("PlayerFrame_ToPlayerArt", OnPlayerFrame_ToPlayerArt)
 end
 
 function InitializeTables()
@@ -72,6 +65,29 @@ function ConstructHealerSpecializations()
 	}
 end
 
+function CreateSeparator()
+	local frame = CreateFrame("Frame", "BiggerHealthBar_QvantryEdit.separator", PlayerFrame)
+	frame:SetFrameStrata("MEDIUM")
+	frame:SetWidth(124)
+	frame:SetHeight(2)
+
+	local texture = frame:CreateTexture("BiggerHealthBar_QvantryEdit.separatorTexture","BACKGROUND")
+	texture:SetTexture("Interface\\AddOns\\BiggerHealthBar_QvantryEdit\\Separator.blp")
+	texture:SetAllPoints(frame)
+	frame.texture = texture
+
+	frame:SetPoint("CENTER",31,-10)
+	BiggerHealthBar_QvantryEdit.separator = frame;
+end
+
+function RegisterEvents()
+	local BiggerHealthBar_QvantryEdit = CreateFrame("Frame", "BiggerHealthBar_QvantryEdit")
+	BiggerHealthBar_QvantryEdit:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+	BiggerHealthBar_QvantryEdit:SetScript("OnEvent", OnUnitChangedSpecialization)
+
+	hooksecurefunc("PlayerFrame_ToPlayerArt", OnPlayerFrame_ToPlayerArt)
+end
+
 function OnUnitChangedSpecialization(...)
 	local unit = select(3, ...)
 	if unit ~= "player" then
@@ -100,12 +116,14 @@ end
 
 function ShowManaBarAndShrinkHealthBar()
 	ShowManaBar()
+	BiggerHealthBar_QvantryEdit.separator:Show()
 	IterateFramesAndInvokeAction(TryAddMaskTextureOnFrame)
 	SetHealthBarHeight(22)
 end
 
 function HideManaBarAndEnlargeHealthBar()
 	HideManaBar()
+	BiggerHealthBar_QvantryEdit.separator:Hide()
 	IterateFramesAndInvokeAction(TryRemoveMaskTextureOnFrame)
 	SetHealthBarHeight(31)
 end
