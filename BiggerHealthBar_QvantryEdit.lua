@@ -1,14 +1,26 @@
-local frames = {}
-local maskTextures = {}
-local shouldShowManaBar = false
+local BiggerHealthBar_QvantryEdit = {}
 
-function Main()
-	local PlayerFrameHealthBar = GetHealthBarFrame()
+function Initialize()
+	BiggerHealthBar_QvantryEdit.playerFrameHealthBar = GetHealthBarFrame()
+	BiggerHealthBar_QvantryEdit.playerFrameManaBar = GetManaBarFrame()
+	BiggerHealthBar_QvantryEdit.playerManaBarMask = GetManaBarMask()
 
-	InitializeTables(PlayerFrameHealthBar)
+	InitializeTables()
 	RegisterEvents()
 	TryUpdateHealthBarFromHealthBarColorAddon(PlayerFrameHealthBar)
 	-- No need to call Run() here as OnPlayerFrame_ToPlayerArt gets called from a WoWClient event on Reload / Login which in turn calls Run.
+end
+
+function GetHealthBarFrame()
+	return PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarArea.HealthBar
+end
+
+function GetManaBarFrame()
+	return PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar
+end
+
+function GetManaBarMask()
+	return PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar.ManaBarMask
 end
 
 function RegisterEvents()
@@ -19,24 +31,45 @@ function RegisterEvents()
 	hooksecurefunc("PlayerFrame_ToPlayerArt", OnPlayerFrame_ToPlayerArt)
 end
 
-function InitializeTables(PlayerFrameHealthBar)
-	frames = {
-		PlayerFrameHealthBar:GetStatusBarTexture(),
-		PlayerFrameHealthBar.MyHealPredictionBar,
-		PlayerFrameHealthBar.OtherHealPredictionBar,
-		PlayerFrameHealthBar.TotalAbsorbBar,
-		PlayerFrameHealthBar.TotalAbsorbBarOverlay,
-		PlayerFrameHealthBar.OverAbsorbGlow,
-		PlayerFrameHealthBar.OverHealAbsorbGlow,
-		PlayerFrameHealthBar.HealAbsorbBar,
-		PlayerFrameHealthBar.HealAbsorbBarLeftShadow,
-		PlayerFrameHealthBar.HealAbsorbBarRightShadow,
+function InitializeTables()
+	ConstructFrames()
+	ConstructMaskTextures()
+	ConstructHealerSpecializations()
+end
+
+function ConstructFrames()
+	local playerFrameHealthBar = BiggerHealthBar_QvantryEdit.playerFrameHealthBar
+	BiggerHealthBar_QvantryEdit.frames = {
+		playerFrameHealthBar:GetStatusBarTexture(),
+		playerFrameHealthBar.MyHealPredictionBar,
+		playerFrameHealthBar.OtherHealPredictionBar,
+		playerFrameHealthBar.TotalAbsorbBar,
+		playerFrameHealthBar.TotalAbsorbBarOverlay,
+		playerFrameHealthBar.OverAbsorbGlow,
+		playerFrameHealthBar.OverHealAbsorbGlow,
+		playerFrameHealthBar.HealAbsorbBar,
+		playerFrameHealthBar.HealAbsorbBarLeftShadow,
+		playerFrameHealthBar.HealAbsorbBarRightShadow,
 		PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarArea.PlayerFrameHealthBarAnimatedLoss:GetStatusBarTexture()
 	}
+end
 
-	for index, frame in pairs(frames) do
-		maskTextures[index] = frame:GetMaskTexture(1)
+function ConstructMaskTextures()
+	BiggerHealthBar_QvantryEdit.maskTextures = {}
+	for index, frame in pairs(BiggerHealthBar_QvantryEdit.frames) do
+		BiggerHealthBar_QvantryEdit.maskTextures[index] = frame:GetMaskTexture(1)
 	end
+end
+
+function ConstructHealerSpecializations()
+	BiggerHealthBar_QvantryEdit.healerSpecializations = {
+		[2] = { 1 }, -- Paladin, Holy
+		[5] = { 1, 2 }, -- Priest, Discipline + Holy
+		[7] = { 3 }, -- Shaman, Restoration
+		[10] = { 2 }, -- Monk, Mistweaver
+		[11] = { 4 }, -- Druid, Restoration
+		[13] = { 2 } -- Evoker, Preservation
+	}
 end
 
 function OnUnitChangedSpecialization(...)
@@ -56,30 +89,9 @@ function OnPlayerFrame_ToPlayerArt()
 	Run()
 end
 
-function GetHealthBarFrame()
-	return PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarArea.HealthBar
-end
-
-function GetManaBarFrame()
-	return PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar
-end
-
-function GetManaBarMask()
-	return PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.ManaBarArea.ManaBar.ManaBarMask
-end
-
 function Run()
-	local healerSpecializations = {
-		[2] = { 1 }, -- Paladin, Holy
-		[5] = { 1, 2 }, -- Priest, Discipline + Holy
-		[7] = { 3 }, -- Shaman, Restoration
-		[10] = { 2 }, -- Monk, Mistweaver
-		[11] = { 4 }, -- Druid, Restoration
-		[13] = { 2 } -- Evoker, Preservation
-	}
-
-	shouldShowManaBar = IsHealer(healerSpecializations)
-	if shouldShowManaBar then
+	BiggerHealthBar_QvantryEdit.shouldShowManaBar = IsHealer()
+	if BiggerHealthBar_QvantryEdit.shouldShowManaBar then
 		ShowManaBarAndShrinkHealthBar()
 	else
 		HideManaBarAndEnlargeHealthBar()
@@ -99,38 +111,38 @@ function HideManaBarAndEnlargeHealthBar()
 end
 
 function SetHealthBarHeight(height)
-	GetHealthBarFrame():SetHeight(height)
+	BiggerHealthBar_QvantryEdit.playerFrameHealthBar:SetHeight(height)
 end
 
 function IterateFramesAndInvokeAction(functionAction)
-	for i = 1, #frames do
-		local frame = frames[i]
-		local maskTexture = maskTextures[i]
+	for i = 1, #BiggerHealthBar_QvantryEdit.frames do
+		local frame = BiggerHealthBar_QvantryEdit.frames[i]
+		local maskTexture = BiggerHealthBar_QvantryEdit.maskTextures[i]
 		functionAction(frame, maskTexture)
 	end
 end
 
-function IsHealer(healerSpecializations)
+function IsHealer()
 	local currentClassId = select(3, UnitClass("player"))
 
-	if not IsHealerClass(healerSpecializations, currentClassId) then
+	if not IsHealerClass(currentClassId) then
 		return false
 	end
 
-	if not IsHealerSpecialization(healerSpecializations, currentClassId) then
+	if not IsHealerSpecialization(currentClassId) then
 		return false
 	end
 
 	return true
 end
 
-function IsHealerClass(healerSpecializations, currentClassId)
-	return healerSpecializations[currentClassId] ~= nil
+function IsHealerClass(currentClassId)
+	return BiggerHealthBar_QvantryEdit.healerSpecializations[currentClassId] ~= nil
 end
 
-function IsHealerSpecialization(healerSpecializations, currentClassId)
-	currentClass = healerSpecializations[currentClassId]
-	currentSpecialization = GetSpecialization()
+function IsHealerSpecialization(currentClassId)
+	local currentClass = BiggerHealthBar_QvantryEdit.healerSpecializations[currentClassId]
+	local currentSpecialization = GetSpecialization()
 
 	for i = 1, #currentClass do
 		if currentClass[i] == currentSpecialization then
@@ -142,23 +154,22 @@ function IsHealerSpecialization(healerSpecializations, currentClassId)
 end
 
 function HideManaBar()
-	local PlayerFrameManaBar = GetManaBarFrame()
-	PlayerFrameManaBar:Hide()
-	PlayerFrameManaBar:HookScript("OnShow", function()
-		if shouldShowManaBar then
+	local manaBar = BiggerHealthBar_QvantryEdit.playerFrameManaBar
+	manaBar:Hide()
+	manaBar:HookScript("OnShow", function()
+		if BiggerHealthBar_QvantryEdit.shouldShowManaBar then
 			return
 		end
 
-		PlayerFrameManaBar:Hide()
+		manaBar:Hide()
 	end)
 
-	GetManaBarMask():Hide()
+	BiggerHealthBar_QvantryEdit.playerManaBarMask:Hide()
 end
 
 function ShowManaBar()
-	local PlayerFrameManaBar = GetManaBarFrame()
-	PlayerFrameManaBar:Show()
-	GetManaBarMask():Show()
+	BiggerHealthBar_QvantryEdit.playerFrameManaBar:Show()
+	BiggerHealthBar_QvantryEdit.playerManaBarMask:Show()
 end
 
 function TryUpdateHealthBarFromHealthBarColorAddon(PlayerFrameHealthBar)
@@ -166,15 +177,15 @@ function TryUpdateHealthBarFromHealthBarColorAddon(PlayerFrameHealthBar)
 		return
 	end
 
-	healthBarColorTextures = HealthBarColor.db.profile.Textures
-	isUseCustomTextureOptionEnabled = healthBarColorTextures.custom
+	local healthBarColorTextures = HealthBarColor.db.profile.Textures
+	local isUseCustomTextureOptionEnabled = healthBarColorTextures.custom
 	if not isUseCustomTextureOptionEnabled then
 		return
 	end
 
 	local media = LibStub("LibSharedMedia-3.0")
-	PlayerFrameHealthBar:SetStatusBarTexture(media:Fetch("statusbar", healthBarColorTextures.statusbar))
-	PlayerFrameHealthBar:GetStatusBarTexture():SetMask("Interface\\AddOns\\BiggerHealthBar\\UIUnitFramePlayerHealthMask")
+	BiggerHealthBar_QvantryEdit.playerFrameHealthBar:SetStatusBarTexture(media:Fetch("statusbar", healthBarColorTextures.statusbar))
+	BiggerHealthBar_QvantryEdit.playerFrameHealthBar:GetStatusBarTexture():SetMask("Interface\\AddOns\\BiggerHealthBar\\UIUnitFramePlayerHealthMask")
 end
 
 function TryRemoveMaskTextureOnFrame(frame)
@@ -202,4 +213,4 @@ function TryAddMaskTextureOnFrame(frame, maskTexture)
 	frame.mask = maskTexture
 end
 
-Main()
+Initialize()
