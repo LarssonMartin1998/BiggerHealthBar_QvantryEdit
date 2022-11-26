@@ -34,8 +34,8 @@ function InitializeTables(PlayerFrameHealthBar)
 		PlayerFrame.PlayerFrameContent.PlayerFrameContentMain.HealthBarArea.PlayerFrameHealthBarAnimatedLoss:GetStatusBarTexture()
 	}
 
-	for k,v in pairs(frames) do
-		maskTextures[k] = v:GetMaskTexture(1)
+	for index, frame in pairs(frames) do
+		maskTextures[index] = frame:GetMaskTexture(1)
 	end
 end
 
@@ -88,26 +88,26 @@ end
 
 function ShowManaBarAndShrinkHealthBar()
 	ShowManaBar()
-
-	for k, v in pairs(frames) do
-		local frame = frames[k]
-		local maskTexture = maskTextures[k]
-		TryAddMaskTextureOnFrame(frame, maskTexture)
-	end
-
-	GetHealthBarFrame():SetHeight(22)
+	IterateFramesAndInvokeAction(TryAddMaskTextureOnFrame)
+	SetHealthBarHeight(22)
 end
 
 function HideManaBarAndEnlargeHealthBar()
 	HideManaBar()
+	IterateFramesAndInvokeAction(TryRemoveMaskTextureOnFrame)
+	SetHealthBarHeight(31)
+end
 
-	for k, v in pairs(frames) do
-		local frame = frames[k]
-		local maskTexture = maskTextures[k]
-		TryRemoveMaskTextureOnFrame(frame, maskTexture)
+function SetHealthBarHeight(height)
+	GetHealthBarFrame():SetHeight(height)
+end
+
+function IterateFramesAndInvokeAction(functionAction)
+	for i = 1, #frames do
+		local frame = frames[i]
+		local maskTexture = maskTextures[i]
+		functionAction(frame, maskTexture)
 	end
-
-	GetHealthBarFrame():SetHeight(31)
 end
 
 function IsHealer(healerSpecializations)
@@ -132,12 +132,12 @@ function IsHealerSpecialization(healerSpecializations, currentClassId)
 	currentClass = healerSpecializations[currentClassId]
 	currentSpecialization = GetSpecialization()
 
-	for k, v in pairs(currentClass) do
-    if v == currentSpecialization then
+	for i = 1, #currentClass do
+		if currentClass[i] == currentSpecialization then
 			return true
 		end
-  end
-
+	end
+	
 	return false
 end
 
